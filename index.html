@@ -1,38 +1,29 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bookshelf App</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Rak Buku</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> <!-- Material Icons -->
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>📚 Bookshelf App</h1>
-    </header>
+    <div class="container">
+        <h1>Aplikasi Rak Buku</h1>
 
-    <form id="bookForm" class="form">
-      <input type="text" id="bookTitle" placeholder="Masukkan Judul Buku" required>
-      <button type="submit" class="btn btn-primary">Tambah Buku</button>
-    </form>
+        <div class="form-container">
+            <input type="text" id="bookTitle" placeholder="Masukkan judul buku...">
+            <button id="addBookBtn">Tambah Buku</button>
+        </div>
 
-    <div class="book-container">
-      <section class="book-section">
-        <h2>Belum Selesai Dibaca</h2>
-        <div id="unreadBooks" class="book-list"></div>
-      </section>
+        <div class="tabs">
+            <button class="tab-btn" onclick="showBooks('unread')">Belum Dibaca</button>
+            <button class="tab-btn" onclick="showBooks('read')">Sudah Dibaca</button>
+        </div>
 
-      <section class="book-section">
-        <h2>Selesai Dibaca</h2>
-        <div id="readBooks" class="book-list"></div>
-      </section>
+        <div id="bookList" class="book-list"></div>
     </div>
 
-    <footer>
-      <p>Bookshelf App © 2024</p>
-    </footer>
-  </div>
-  <script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
