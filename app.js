@@ -1,62 +1,111 @@
-// Mendapatkan elemen-elemen DOM
-const addBookBtn = document.getElementById('addBookBtn');
-const bookTitleInput = document.getElementById('bookTitle');
-const bookList = document.getElementById('bookList');
+const books = JSON.parse(localStorage.getItem("books")) || [];
+const bookForm = document.getElementById("bookForm");
+const searchForm = document.getElementById("searchBook");
+const incompleteBookList = document.getElementById("incompleteBookList");
+const completeBookList = document.getElementById("completeBookList");
 
-// Memuat buku dari localStorage saat halaman dimuat
-let books = JSON.parse(localStorage.getItem('books')) || [];
+function saveBooks() {
+  localStorage.setItem("books", JSON.stringify(books));
+}
 
-// Fungsi untuk menampilkan buku-buku
-function renderBooks(status) {
-    const filteredBooks = books.filter(book => book.status === status || status === 'all');
-    bookList.innerHTML = '';
+function renderBooks(filter = "") {
+  incompleteBookList.innerHTML = "";
+  completeBookList.innerHTML = "";
 
-    filteredBooks.forEach((book, index) => {
-        const bookElement = document.createElement('div');
-        bookElement.classList.add('book');
-        bookElement.innerHTML = `
-            <h3>${book.title}</h3>
-            <p>Status: <span class="status ${book.status}">${book.status === 'read' ? 'Sudah Dibaca' : 'Belum Dibaca'}</span></p>
-            <button onclick="deleteBook(${index})">Hapus</button>
-            <button onclick="toggleStatus(${index})">${book.status === 'read' ? 'Tandai Belum Dibaca' : 'Tandai Sudah Dibaca'}</button>
-        `;
-        bookList.appendChild(bookElement);
+  books
+    .filter((book) => book.title.toLowerCase().includes(filter.toLowerCase()))
+    .forEach((book) => {
+      const bookElement = document.createElement("div");
+      bookElement.dataset.bookid = book.id;
+      bookElement.dataset.testid = "bookItem";
+
+      bookElement.innerHTML = `
+        <h3 data-testid="bookItemTitle">${book.title}</h3>
+        <p data-testid="bookItemAuthor">Penulis: ${book.author}</p>
+        <p data-testid="bookItemYear">Tahun: ${book.year}</p>
+        <div>
+          <button data-testid="bookItemIsCompleteButton">
+            ${book.isComplete ? "Belum selesai dibaca" : "Selesai dibaca"}
+          </button>
+          <button data-testid="bookItemDeleteButton">Hapus Buku</button>
+          <button data-testid="bookItemEditButton">Edit Buku</button>
+        </div>
+      `;
+
+      const toggleButton = bookElement.querySelector(
+        "[data-testid='bookItemIsCompleteButton']"
+      );
+      const deleteButton = bookElement.querySelector(
+        "[data-testid='bookItemDeleteButton']"
+      );
+      const editButton = bookElement.querySelector(
+        "[data-testid='bookItemEditButton']"
+      );
+
+      toggleButton.addEventListener("click", () => toggleBook(book.id));
+      deleteButton.addEventListener("click", () => deleteBook(book.id));
+      editButton.addEventListener("click", () => editBook(book.id));
+
+      if (book.isComplete) {
+        completeBookList.appendChild(bookElement);
+      } else {
+        incompleteBookList.appendChild(bookElement);
+      }
     });
 }
 
-// Fungsi untuk menambahkan buku baru
-addBookBtn.addEventListener('click', () => {
-    const title = bookTitleInput.value.trim();
-    if (title) {
-        const newBook = {
-            title,
-            status: 'unread',
-        };
-        books.push(newBook);
-        localStorage.setItem('books', JSON.stringify(books));  // Menyimpan ke localStorage
-        renderBooks('all'); // Memperbarui tampilan buku
-        bookTitleInput.value = ''; // Kosongkan input
-    }
-});
+function addBook(event) {
+  event.preventDefault();
+  const title = document.getElementById("bookFormTitle").value;
+  const author = document.getElementById("bookFormAuthor").value;
+  const year = document.getElementById("bookFormYear").value;
+  const isComplete = document.getElementById("bookFormIsComplete").checked;
 
-// Fungsi untuk menghapus buku
-function deleteBook(index) {
-    books.splice(index, 1);
-    localStorage.setItem('books', JSON.stringify(books));  // Update localStorage setelah dihapus
-    renderBooks('all'); // Memperbarui tampilan
+  books.push({
+    id: +new Date(),
+    title,
+    author,
+    year,
+    isComplete,
+  });
+
+  saveBooks();
+  renderBooks();
+  bookForm.reset();
 }
 
-// Fungsi untuk mengubah status buku
-function toggleStatus(index) {
-    books[index].status = books[index].status === 'read' ? 'unread' : 'read';
-    localStorage.setItem('books', JSON.stringify(books));  // Update status di localStorage
-    renderBooks('all'); // Memperbarui tampilan
+function toggleBook(id) {
+  const book = books.find((book) => book.id === id);
+  book.isComplete = !book.isComplete;
+  saveBooks();
+  renderBooks();
 }
 
-// Fungsi untuk menampilkan buku berdasarkan status
-function showBooks(status) {
-    renderBooks(status);
+function deleteBook(id) {
+  const index = books.findIndex((book) => book.id === id);
+  books.splice(index, 1);
+  saveBooks();
+  renderBooks();
 }
 
-// Render buku saat halaman dimuat
-renderBooks('all');
+function editBook(id) {
+  const book = books.find((book) => book.id === id);
+  document.getElementById("bookFormTitle").value = book.title;
+  document.getElementById("bookFormAuthor").value = book.author;
+  document.getElementById("bookFormYear").value = book.year;
+  document.getElementById("bookFormIsComplete").checked = book.isComplete;
+
+  deleteBook(id);
+}
+
+function searchBooks(event) {
+  event.preventDefault();
+  const query = document.getElementById("searchBookTitle").value;
+  renderBooks(query);
+}
+
+bookForm.addEventListener("submit", addBook);
+searchForm.addEventListener("submit", searchBooks);
+
+// Render initial data
+renderBooks();
