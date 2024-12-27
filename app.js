@@ -58,14 +58,14 @@ function addBook(event) {
   event.preventDefault();
   const title = document.getElementById("bookFormTitle").value;
   const author = document.getElementById("bookFormAuthor").value;
-  const year = document.getElementById("bookFormYear").value;
+  const year = parseInt(document.getElementById("bookFormYear").value, 10); 
   const isComplete = document.getElementById("bookFormIsComplete").checked;
 
   books.push({
     id: +new Date(),
     title,
     author,
-    year,
+    year, 
     isComplete,
   });
 
@@ -73,6 +73,7 @@ function addBook(event) {
   renderBooks();
   bookForm.reset();
 }
+
 
 function toggleBook(id) {
   const book = books.find((book) => book.id === id);
